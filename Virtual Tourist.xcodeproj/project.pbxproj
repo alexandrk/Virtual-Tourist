@@ -17,6 +17,8 @@
 		11FF92371F0F011500DF5860 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11FF92351F0F011500DF5860 /* Constants.swift */; };
 		11FF92381F0F011500DF5860 /* Networking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11FF92361F0F011500DF5860 /* Networking.swift */; };
 		11FF923A1F0F07BC00DF5860 /* TravelLocationsMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11FF92391F0F07BC00DF5860 /* TravelLocationsMapViewController.swift */; };
+		11FF923C1F101BD100DF5860 /* FlickrImageCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11FF923B1F101BD100DF5860 /* FlickrImageCollectionViewCell.swift */; };
+		11FF923E1F11802F00DF5860 /* HelperFuncs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11FF923D1F11802F00DF5860 /* HelperFuncs.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +34,8 @@
 		11FF92351F0F011500DF5860 /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		11FF92361F0F011500DF5860 /* Networking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Networking.swift; sourceTree = "<group>"; };
 		11FF92391F0F07BC00DF5860 /* TravelLocationsMapViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TravelLocationsMapViewController.swift; sourceTree = "<group>"; };
+		11FF923B1F101BD100DF5860 /* FlickrImageCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlickrImageCollectionViewCell.swift; sourceTree = "<group>"; };
+		11FF923D1F11802F00DF5860 /* HelperFuncs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelperFuncs.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,6 +76,8 @@
 				11FF92361F0F011500DF5860 /* Networking.swift */,
 				11FF921F1F0EAE6600DF5860 /* Main.storyboard */,
 				11FF92331F0EF7BE00DF5860 /* PinDetailViewController.swift */,
+				11FF923B1F101BD100DF5860 /* FlickrImageCollectionViewCell.swift */,
+				11FF923D1F11802F00DF5860 /* HelperFuncs.swift */,
 				11FF92251F0EAE6600DF5860 /* Assets.xcassets */,
 				11FF92271F0EAE6600DF5860 /* LaunchScreen.storyboard */,
 				11FF922A1F0EAE6600DF5860 /* Info.plist */,
@@ -169,7 +175,9 @@
 				11FF92371F0F011500DF5860 /* Constants.swift in Sources */,
 				11FF92341F0EF7BE00DF5860 /* PinDetailViewController.swift in Sources */,
 				11FF923A1F0F07BC00DF5860 /* TravelLocationsMapViewController.swift in Sources */,
+				11FF923E1F11802F00DF5860 /* HelperFuncs.swift in Sources */,
 				11FF92381F0F011500DF5860 /* Networking.swift in Sources */,
+				11FF923C1F101BD100DF5860 /* FlickrImageCollectionViewCell.swift in Sources */,
 				11FF92241F0EAE6600DF5860 /* Virtual_Tourist.xcdatamodeld in Sources */,
 				11FF921C1F0EAE6600DF5860 /* AppDelegate.swift in Sources */,
 			);
