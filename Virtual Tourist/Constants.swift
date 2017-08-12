@@ -15,6 +15,8 @@ struct Constants {
         static let DetailViewControllerBackButtonText = "OK"
         static let NewCollectionButtonTitle = "New Collection"
         static let RemoveSelectedPicturesButtonTitle = "Remove Selected Pictures"
+        static let EditBarButtonTitle = "Edit"
+        static let DoneBarButtonTitle = "Done"
     }
     
     // MARK: Flickr

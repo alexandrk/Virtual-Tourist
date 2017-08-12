@@ -30,11 +30,6 @@ class LocationsMapViewController: UIViewController, MKMapViewDelegate {
         // Set map view delegate with controller
         mapView.delegate = self
         
-        // REMOVE
-        let documentsDirectories =
-            FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        print(documentsDirectories.first!)
-        
         // Setting mapView reference in the MapController class
         MapController.mapViewReference = mapView
         
@@ -65,48 +60,13 @@ class LocationsMapViewController: UIViewController, MKMapViewDelegate {
     }
     
     /**
-     MKMapViewDelegate function, called on annotation load to create Annotation Views
-     Used here to disable callout for annotations
-    */
-    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        
-        var annotationView: MKAnnotationView! = mapView.dequeueReusableAnnotationView(withIdentifier: Constants.DetailVCValues.AnnotationViewIdentifier)
-        
-        if annotationView == nil {
-            annotationView = MKAnnotationView(annotation: annotation, reuseIdentifier: Constants.DetailVCValues.AnnotationViewIdentifier)
-        }
-        
-        // Disables the callout
-        annotationView.canShowCallout = false
-        
-        annotationView.image = #imageLiteral(resourceName: "MapPin")
-        annotationView.centerOffset = CGPoint(x: 0, y: -(annotationView.image!.size.height / 2))
-        
-        return annotationView
-    }
-    
-    /**
      MKMapViewDelegate function, used when annotation is tapped to transition to the detail view
     */
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         
-        // Delete pin, if "edit" mode is active
-        if (editPinsButton.title == "Done") {
-            
-            if let annotation = view.annotation as? MyMKPointAnnotation {
-                
-                let location = annotation.location!
-                
-                // Delete images from cache and disk, if any
-                if let photos = location.photos {
-                    for photo in Array(photos) as! [Photo] {
-                        Networking.imageStore.deleteImage(forKey: photo.photoID!)
-                    }
-                }
-                
-                mapView.removeAnnotation(annotation)
-                CoreData.moc.delete(annotation.location!)
-            }
+        // Delete pin, if pin "Edit" mode is over
+        if (editPinsButton.title == Constants.AppStrings.DoneBarButtonTitle) {
+            removeSelectedPins(from: view)
             return
         }
         
@@ -125,6 +85,10 @@ class LocationsMapViewController: UIViewController, MKMapViewDelegate {
         navigationController?.pushViewController(vc, animated: true)
     }
     
+    /**
+     Manages longPressGesture recognizer.
+     Enables / disables it, based on the passed boolean parameter
+     */
     private func gestureRecognizer(enable: Bool) {
         if enable {
             mapView.addGestureRecognizer(longPressGesture)
@@ -135,7 +99,7 @@ class LocationsMapViewController: UIViewController, MKMapViewDelegate {
     
     /**
      Adds new pin to the map and database, on user action.
-     Used as a handler for LongPress event
+     Used as a handler for LongPress event.
     */
     func addPin(sender: UILongPressGestureRecognizer) {
         
@@ -159,13 +123,34 @@ class LocationsMapViewController: UIViewController, MKMapViewDelegate {
         }
     }
     
+    private func removeSelectedPins(from view: MKAnnotationView) {
+        if let annotation = view.annotation as? MyMKPointAnnotation {
+            
+            let location = annotation.location!
+            
+            // Delete images from cache and disk, if any
+            if let photos = location.photos {
+                for photo in Array(photos) as! [Photo] {
+                    Networking.imageStore.deleteImage(forKey: photo.photoID!)
+                }
+            }
+            
+            mapView.removeAnnotation(annotation)
+            CoreData.moc.delete(annotation.location!)
+        }
+    }
+    
+    /**
+     Edit Pins button action.
+     Does the necessary setup for clicked pins to be deleted.
+     */
     @IBAction func editPinsButtonAction(_ sender: Any) {
         
         let barButton = sender as? UIBarButtonItem
         
-        if barButton?.title == "Edit" {
+        if barButton?.title == Constants.AppStrings.EditBarButtonTitle {
             // Change button text to "Done"
-            barButton?.title = "Done"
+            barButton?.title = Constants.AppStrings.DoneBarButtonTitle
             
             // Disable default map interactions
             gestureRecognizer(enable: false)
@@ -175,12 +160,13 @@ class LocationsMapViewController: UIViewController, MKMapViewDelegate {
             
             // If pin tapped, remove it from map
             
-            // When "Done" button is pressed, commit change to DB
-        } else {
+        }
+        // When "Done" button is pressed, commit change to DB
+        else {
             
             // "Done" button was pressed
             
-            barButton?.title = "Edit"
+            barButton?.title = Constants.AppStrings.EditBarButtonTitle
             mapViewBottomConstraint.constant = 0
             gestureRecognizer(enable: true)
             CoreData.saveContext()

@@ -62,10 +62,6 @@ struct FlickrAPI {
             let pageNumber = photos[Constants.FlickrResponseKeys.PageNumber] as! Int16
             PinDetailViewController.location.photoPageNumber = pageNumber
             
-            // REMOVE
-            print("Page Number: \(photosArray.count)")
-            print("Total Photos for location in JSON: \(photosArray.count)")
-            
             // Parsing each photo from Flickr response into Photo objects
             // Saving them into final array to be returned by the function
             var finalPhotos = [Photo]()
@@ -76,9 +72,6 @@ struct FlickrAPI {
                 }
                 finalPhotos.append(photo)
             }
-            
-            // REMOVE
-            print("Total photos in Photo array, after parsing: \(finalPhotos.count)")
             
             // If no images where parsed out of the Flickr photos response,
             // even so they were in present in it, return an error
@@ -108,13 +101,6 @@ struct FlickrAPI {
             let owner           = json[Constants.FlickrResponseKeys.Owner] as? String
         else
         {
-            // REMOVE PRINT STATEMENTS, OR CONVERT THEM TO LOG MESSAGES
-            // Don't have enough information to construct a Photo
-            print("--------------------------------")
-            print("CANNOT PARSE THE FOLLOWING JSON:")
-            print(json)
-            print("--------------------------------")
-            
             return nil
         }
         
@@ -130,13 +116,6 @@ struct FlickrAPI {
         } else if let url = json[Constants.FlickrResponseKeys.OriginalURL] as? String {
             urlLargeStr = url
         } else {
-            // REMOVE PRINT STATEMENTS, OR CONVERT THEM TO LOG MESSAGES
-            // Don't have enough information to construct a Photo
-            print("--------------------------------")
-            print("Neither Large nor Original URL are Present:")
-            print(json)
-            print("--------------------------------")
-            
             return nil
         }
         
@@ -156,15 +135,6 @@ struct FlickrAPI {
             let urlLarge        = URL(string: urlLargeStr!),
             let urlOriginal     = URL(string: urlOriginalStr!)
         else {
-            // REMOVE PRINT STATEMENTS, OR CONVERT THEM TO LOG MESSAGES
-            // Don't have enough information to construct a Photo
-            print("--------------------------------")
-            print("Cannot convert URL String to URL:")
-            print("url small: \(urlSmallStr ?? "")")
-            print("url large: \(urlLargeStr ?? "")")
-            print("url original: \(urlOriginalStr ?? "")")
-            print("--------------------------------")
-            
             return nil
         }
         

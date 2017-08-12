@@ -65,23 +65,7 @@ class PinDetailViewController: UIViewController,
         // Sends a Flickr request for images, based on current location coordinates data
         else
         {
-            let latitude = PinDetailViewController.location.latitude
-            let longitude = PinDetailViewController.location.longitude
-            Networking.sharedInstance.fetchFlickrPhotosForLocation(lat: latitude,
-                                                                   long: longitude) { result in
-                
-                switch result {
-                case let .success(photos):
-                    self.photos = photos
-                case .failure:
-                    self.photos.removeAll()
-                }
-                
-                OperationQueue.main.addOperation {
-                    self.collectionView.reloadData()
-                    self.toggleNoImagesLabel(numberOfImages: self.photos.count)
-                }
-            }
+            processNewPicturesRequest()
         }
     }
     
@@ -166,96 +150,119 @@ class PinDetailViewController: UIViewController,
     */
     @IBAction func actionButtonPress(_ sender: Any) {
         let btn = sender as! UIButton
-        print(btn.currentTitle!)
         
         if btn.currentTitle! == Constants.AppStrings.NewCollectionButtonTitle {
             
-            // Disable button for the time of the event processing
             btn.isEnabled = false
-            
-            // 0. Get page number for the current Flickr image set
-            let currentPageNumber = PinDetailViewController.location.photoPageNumber
-            let nextPageNumber = currentPageNumber + 1
-            
-            // 1. Remove Images from Core Data (NEEDS TO BE SAVED!)
-            for photo in photos {
-                CoreData.moc.delete(photo)
-                
-                // 2. Remove files from cache and filesystem
-                // Check if file is there, before deleting
-                Networking.imageStore.deleteImage(forKey: photo.photoID!)
-            }
-            
-            // 2. Remove Images from photos array
-            photos.removeAll()
-            
-            // 4. Remove Images from collection view
-            collectionView.reloadData()
-            
-            // 5. Commit change to DB
-            //CoreData.saveContext()
-            
-            // Request new items with new page number
-            let latitude = PinDetailViewController.location.latitude
-            let longitude = PinDetailViewController.location.longitude
-            let extraParams = [Constants.FlickrParameterKeys.PageNumber: String(nextPageNumber)]
-            Networking.sharedInstance.fetchFlickrPhotosForLocation(
-                lat: latitude,
-                long: longitude,
-                extraRequrstParameters: extraParams) { result in
-                                                                    
-                switch result {
-                case let .success(photos):
-                    self.photos = photos
-                case .failure:
-                    self.photos.removeAll()
-                }
-                
-                OperationQueue.main.addOperation {
-                    self.collectionView.reloadData()
-                    btn.isEnabled = true
-                    self.toggleNoImagesLabel(numberOfImages: self.photos.count)
-                }
-                
+            loadNewCollectionOfImages {
+                btn.isEnabled = true
             }
         }
         
         if btn.currentTitle! == Constants.AppStrings.RemoveSelectedPicturesButtonTitle {
             
-            // Sort selected photos indexPaths in descending order
-            // This is necessary to avoid index of of bounds exception
-            selectedPhotosIndexPaths = selectedPhotosIndexPaths.sorted { element1, element2 in
-                return element1 > element2
-            }
-            
-            // Loops through all the indexPaths for selected cells
-            for indexPath in selectedPhotosIndexPaths {
-                
-                // 1. Remove Images from photos array
-                let photo = photos.remove(at: indexPath.row)
-                
-                // 2. Remove Images from Core Data (NEEDS TO BE SAVED!)
-                CoreData.moc.delete(photo)
-                
-                // 3. Remove files from cache and filesystem
-                Networking.imageStore.deleteImage(forKey: photo.photoID!)
-                
-            }
-            
-            // 4. Remove Images from collection view (should automatically redraw the collection)
-            collectionView.deleteItems(at: selectedPhotosIndexPaths)
-            
-            selectedPhotosIndexPaths = []
-            
-            // 5. Commit change to DB
-            //CoreData.saveContext()
-            
-            isRemoveItemsEnabled()
-
+            removeSelectedPictures()
             
         }
     }
 
+    /**
+     Handles the new collection request
+    */
+    private func loadNewCollectionOfImages(completionHandler: @escaping () -> Void) {
+        
+        // 0. Get page number for the current Flickr image set
+        let currentPageNumber = PinDetailViewController.location.photoPageNumber
+        let nextPageNumber = currentPageNumber + 1
+        
+        for photo in photos {
+            // 1. Remove Images from Core Data (NEEDS TO BE SAVED!)
+            CoreData.moc.delete(photo)
+            
+            // 2. Remove files from cache and filesystem
+            // Check if file is there, before deleting
+            Networking.imageStore.deleteImage(forKey: photo.photoID!)
+        }
+        
+        // 3. Remove Images from photos array
+        photos.removeAll()
+        
+        // 4. Remove Images from collection view
+        collectionView.reloadData()
+        
+        // Request new items with new page number
+        let extraParams = [Constants.FlickrParameterKeys.PageNumber: String(nextPageNumber)]
+        processNewPicturesRequest(extraRequrstParameters: extraParams) {
+            completionHandler()
+        }
+    }
+    
+    /**
+     Handles the processing on a new Flickr request for pictures
+    */
+    func processNewPicturesRequest(extraRequrstParameters: [String: String] = [String:String](),
+                                   completionHandler: (() -> Void)? = nil) {
+        
+        let latitude = PinDetailViewController.location.latitude
+        let longitude = PinDetailViewController.location.longitude
+        
+        Networking.sharedInstance.fetchFlickrPhotosForLocation(
+            lat: latitude,
+            long: longitude,
+            extraRequrstParameters: extraRequrstParameters) { result in
+                                                                
+            switch result {
+            case let .success(photos):
+                self.photos = photos
+            case .failure:
+                self.photos.removeAll()
+            }
+            
+            OperationQueue.main.addOperation {
+                self.collectionView.reloadData()
+                self.toggleNoImagesLabel(numberOfImages: self.photos.count)
+                
+                if let completionHandler = completionHandler {
+                    completionHandler()
+                }
+            }
+        }
+    }
+    
+    /**
+     Handles the removal of selected pictures
+    */
+    func removeSelectedPictures() {
+        // Sort selected photos indexPaths in descending order
+        // This is necessary to avoid index out of bounds exception
+        selectedPhotosIndexPaths = selectedPhotosIndexPaths.sorted { element1, element2 in
+            return element1 > element2
+        }
+        
+        // Loops through all the indexPaths for selected cells
+        for indexPath in selectedPhotosIndexPaths {
+            
+            // 1. Remove Images from photos array
+            let photo = photos.remove(at: indexPath.row)
+            
+            // 2. Remove Images from Core Data (NEEDS TO BE SAVED!)
+            CoreData.moc.delete(photo)
+            
+            // 3. Remove files from cache and filesystem
+            Networking.imageStore.deleteImage(forKey: photo.photoID!)
+            
+        }
+        
+        // 4. Remove Images from collection view (should automatically redraw the collection)
+        collectionView.deleteItems(at: selectedPhotosIndexPaths)
+        
+        // 5. Clear selected photos indexPath array
+        selectedPhotosIndexPaths = []
+        
+        // Toggle buttons [New Collection | Remove Selected Pictures]
+        isRemoveItemsEnabled()
+    }
+    
     /**
      Toggles action buttons, based on the fact if the cells are selected
     */

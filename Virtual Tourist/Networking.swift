@@ -61,18 +61,10 @@ class Networking {
         let url = FlickrAPI.photosSearchURL(params: params)
         let request = URLRequest(url: url)
         
-        print("Flickr Request URL: \(url)")
-        
         let task = session.dataTask(with: request) {
             (data, response, error) -> Void in
             
             let result = self.processPhotosRequest(data: data, error: error)
-            
-            if case .success = result {
-//                OperationQueue.main.addOperation {
-//                    CoreData.saveContext()
-//                }
-            }
             
             // Process the completion handler on the main queue
             OperationQueue.main.addOperation {

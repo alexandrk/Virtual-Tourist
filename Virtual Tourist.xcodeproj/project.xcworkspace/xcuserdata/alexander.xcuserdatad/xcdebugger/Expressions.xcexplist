@@ -142,6 +142,14 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
+         contextName = "LocationsMapViewController.addPin(sender : UILongPressGestureRecognizer) -&gt; ():LocationsMapViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
          contextName = "PinDetailViewController.getImagesForSelectedPin() -&gt; ():PinDetailViewController.swift">
          <PersistentStrings>
             <PersistentString
