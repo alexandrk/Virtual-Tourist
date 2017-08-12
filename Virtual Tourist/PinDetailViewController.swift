@@ -8,187 +8,295 @@
 
 import UIKit
 import MapKit
+import CoreData
 
-class PinDetailViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
+class PinDetailViewController: UIViewController,
+                               UICollectionViewDelegate,
+                               UICollectionViewDataSource,
+                               NSFetchedResultsControllerDelegate {
 
-    var selectedPin: MKPointAnnotation?
-    var photosArray: [AnyObject]?
     fileprivate let numberOfItemsPerRow: CGFloat = 3
     fileprivate let sectionInsets = UIEdgeInsets(top: 20, left: 10, bottom: 20, right: 10)
+    fileprivate var photos = [Photo]()
+    fileprivate var selectedPhotosIndexPaths = [IndexPath]()
+    fileprivate var selectedPhotos = [Photo]()
     
-    private let reuseIdentifier = "flickrImageCell"
-    private let regionRadius: CLLocationDistance = 1000 // 1km
+    static var location: Location!
+    var annotation: MKPointAnnotation!
+    
+    @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var noImagesLabel: UILabel!
     @IBOutlet weak var mapViewHeightContraint: NSLayoutConstraint!
-    
-    func centerMapOnLocation(location: CLLocation) {
-        let coordinateRegion = MKCoordinateRegionMakeWithDistance(location.coordinate,
-                                                                  regionRadius * 2.0, regionRadius * 2.0)
-        mapView.setRegion(coordinateRegion, animated: true)
-    }
-    
-    @IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var newCollectionBtn: UIButton!
+    @IBOutlet weak var removeSelectedBtn: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Create Pin and Center Map on It's Location
-        if let selectedPin = selectedPin {
-            mapView.addAnnotation(selectedPin)
-            
-            centerMapOnLocation(location: CLLocation(latitude: selectedPin.coordinate.latitude,
-                                                     longitude: selectedPin.coordinate.longitude))
-            
-            // Requrst Images from Flickr API
-            //noImagesLabel.text = "Retreiving Images From Flickr"
-            //noImagesLabel.isEnabled = true
-            Networking.sharedInstance.requestImagesForLocation(latitude: Double(selectedPin.coordinate.latitude),
-                                                               longitude: Double(selectedPin.coordinate.longitude),
-                                                               withPageNumber: 1,
-                                                               completionHandler: completionHandlerForRequestImagesForLocation)
-        }
+        PinDetailViewController.location = (annotation as! MyMKPointAnnotation).location
         
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
+        collectionView.allowsMultipleSelection = true
+        
+        // Setting reference to mapView for use in Map Helper controller
+        MapController.mapViewReference = mapView
+        
+        // Add annotation to map and center map on it
+        mapView.addAnnotation(annotation)
+        MapController.centerMapOnLocation(coordinate: annotation.coordinate)
+        
+        // Disable map for user interaction
+        mapView.isUserInteractionEnabled = false
+        
+        // Requrst Images from Flickr API
+        getImagesForSelectedPin()
+    }
 
-        // Register cell classes
-        //self.collectionView!.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+    /**
+     Gets images from database. If no images in DB, gets them from Flickr API
+    */
+    func getImagesForSelectedPin() {
+        
+        // If current location has photos, uses them
+        if let locationPhotos = PinDetailViewController.location?.photos, locationPhotos.count > 0{
+            photos = Array(locationPhotos) as! [Photo]
+            collectionView.reloadData()
+        }
+        // Sends a Flickr request for images, based on current location coordinates data
+        else
+        {
+            let latitude = PinDetailViewController.location.latitude
+            let longitude = PinDetailViewController.location.longitude
+            Networking.sharedInstance.fetchFlickrPhotosForLocation(lat: latitude,
+                                                                   long: longitude) { result in
+                
+                switch result {
+                case let .success(photos):
+                    self.photos = photos
+                case .failure:
+                    self.photos.removeAll()
+                }
+                
+                OperationQueue.main.addOperation {
+                    self.collectionView.reloadData()
+                    self.toggleNoImagesLabel(numberOfImages: self.photos.count)
+                }
+            }
+        }
+    }
+    
+    // MARK: UICollectionViewDataSource
 
-        // Do any additional setup after loading the view.
+    /**
+     collectionView numberOfItemsInSection datasource delegate
+    */
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return photos.count
     }
     
     /**
-    */
-    func completionHandlerForRequestImagesForLocation(photosArray: AnyObject?, error: NSError?) {
-        self.photosArray = photosArray as? [AnyObject]
-        HelperFuncs.performUIUpdatesOnMain {
-            self.collectionView.reloadData()
-        }
-    }
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using [segue destinationViewController].
-        // Pass the selected object to the new view controller.
-    }
-    */
-
-    // MARK: UICollectionViewDataSource
-
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of items
-        var numberOfItems = 0
-        
-        // Set number of items to the length of photosArray
-        if let photosArray = photosArray {
-           numberOfItems = photosArray.count
-        }
-        
-        if numberOfItems == 0 {
-            noImagesLabel.isHidden = false
-        }
-        else {
-            noImagesLabel.isHidden = true
-        }
-        return numberOfItems
-    }
-
+     collectionView cellForItemAt datasource delegate
+     */
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! FlickrImageCollectionViewCell
-    
-        /* GUARD: Configure the cell */
-        guard let photoDictionary = photosArray?[indexPath.row] as? [String:AnyObject] else {
-            print("Unable to convert photo from photosArray.\nIn \(#function) at line: \(#line)")
-            return cell
-        }
-        
-        /* GUARD: Does our photo have a key for 'url_m'? */
-        guard let imageUrlString = photoDictionary[Constants.FlickrResponseKeys.MediumURL] as? String else {
-            print("Cannot find key '\(Constants.FlickrResponseKeys.MediumURL)' in \(photoDictionary).\nIn \(#function) at line: \(#line)")
-            return cell
-        }
-        
-        // if an image exists at the url, set the image //and title
-        let imageURL = URL(string: imageUrlString)
-        if let imageData = try? Data(contentsOf: imageURL!) {
-            var imageView = cell.viewWithTag(100) as! UIImageView
-            imageView.image = UIImage(data: imageData)
-        } else {
-            print("Image does not exist at \(imageURL).\nIn \(#function) at line: \(#line)")
-        }
-    
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.DetailVCValues.CustomCollectionCellName, for: indexPath) as! FlickrImageCollectionViewCell
         return cell
     }
 
     // MARK: UICollectionViewDelegate
 
-    /*
-    // Uncomment this method to specify if the specified item should be highlighted during tracking
-    override func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-        return true
-    }
+    /**
+     Delegaet method, that is called when the cell is about to be displayed in the collectionView
     */
-
-    /*
-    // Uncomment this method to specify if the specified item should be selected
-    override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        return true
+    func collectionView(_ collectionView: UICollectionView,
+                        willDisplay cell: UICollectionViewCell,
+                        forItemAt indexPath: IndexPath) {
+        
+        let photo = photos[indexPath.row]
+        
+        // Get the image to be displayed in the cell
+        Networking.sharedInstance.fetchImage(for: photo) {
+            (result) -> Void in
+            
+            // The index path for the photo might have changed between the
+            // time the request started and finished, so find the most recent
+            // index path
+            guard let photoIndex = self.photos.index(of: photo),
+                case let .success(image) = result else {
+                    return
+            }
+            let photoIndexPath = IndexPath(item: photoIndex, section: 0)
+            
+            // When request finishes, only update the cell if it is still visible
+            // Note: cellForItem returns VISIBLE cell object at the specified index path
+            if let cell = self.collectionView.cellForItem(at: photoIndexPath) as? FlickrImageCollectionViewCell {
+                cell.update(with: image)
+            }
+        }
+        
     }
-    */
-
-    /*
-    // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
-    override func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
-        return false
-    }
-
-    override func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
-        return false
-    }
-
-    override func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
     
-    }
+    /**
+     Delegate method that is called when the cell is clicked (selected)
     */
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        // Add indexPath of selected collection element to selected array
+        selectedPhotosIndexPaths.append(indexPath)
+        
+        isRemoveItemsEnabled()
 
+    }
+    
+    /**
+     Delegate method that is called when the cell is deselected
+    */
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        
+        // Locates and Removes an item from selectedPhotosIndexPaths array
+        let index = selectedPhotosIndexPaths.index(of: indexPath)
+        if let index = index {
+            selectedPhotosIndexPaths.remove(at: index)
+        }
+        
+        isRemoveItemsEnabled()
+    }
+    
+    /**
+     Buttons click processor for "New Collection" and "Remove Selected Pictures" buttons
+    */
+    @IBAction func actionButtonPress(_ sender: Any) {
+        let btn = sender as! UIButton
+        print(btn.currentTitle!)
+        
+        if btn.currentTitle! == Constants.AppStrings.NewCollectionButtonTitle {
+            
+            // Disable button for the time of the event processing
+            btn.isEnabled = false
+            
+            // 0. Get page number for the current Flickr image set
+            let currentPageNumber = PinDetailViewController.location.photoPageNumber
+            let nextPageNumber = currentPageNumber + 1
+            
+            // 1. Remove Images from Core Data (NEEDS TO BE SAVED!)
+            for photo in photos {
+                CoreData.moc.delete(photo)
+                
+                // 2. Remove files from cache and filesystem
+                // Check if file is there, before deleting
+                Networking.imageStore.deleteImage(forKey: photo.photoID!)
+            }
+            
+            // 2. Remove Images from photos array
+            photos.removeAll()
+            
+            // 4. Remove Images from collection view
+            collectionView.reloadData()
+            
+            // 5. Commit change to DB
+            //CoreData.saveContext()
+            
+            // Request new items with new page number
+            let latitude = PinDetailViewController.location.latitude
+            let longitude = PinDetailViewController.location.longitude
+            let extraParams = [Constants.FlickrParameterKeys.PageNumber: String(nextPageNumber)]
+            Networking.sharedInstance.fetchFlickrPhotosForLocation(
+                lat: latitude,
+                long: longitude,
+                extraRequrstParameters: extraParams) { result in
+                                                                    
+                switch result {
+                case let .success(photos):
+                    self.photos = photos
+                case .failure:
+                    self.photos.removeAll()
+                }
+                
+                OperationQueue.main.addOperation {
+                    self.collectionView.reloadData()
+                    btn.isEnabled = true
+                    self.toggleNoImagesLabel(numberOfImages: self.photos.count)
+                }
+                
+            }
+        }
+        
+        if btn.currentTitle! == Constants.AppStrings.RemoveSelectedPicturesButtonTitle {
+            
+            // Sort selected photos indexPaths in descending order
+            // This is necessary to avoid index of of bounds exception
+            selectedPhotosIndexPaths = selectedPhotosIndexPaths.sorted { element1, element2 in
+                return element1 > element2
+            }
+            
+            // Loops through all the indexPaths for selected cells
+            for indexPath in selectedPhotosIndexPaths {
+                
+                // 1. Remove Images from photos array
+                let photo = photos.remove(at: indexPath.row)
+                
+                // 2. Remove Images from Core Data (NEEDS TO BE SAVED!)
+                CoreData.moc.delete(photo)
+                
+                // 3. Remove files from cache and filesystem
+                Networking.imageStore.deleteImage(forKey: photo.photoID!)
+                
+            }
+            
+            // 4. Remove Images from collection view (should automatically redraw the collection)
+            collectionView.deleteItems(at: selectedPhotosIndexPaths)
+            
+            selectedPhotosIndexPaths = []
+            
+            // 5. Commit change to DB
+            //CoreData.saveContext()
+            
+            isRemoveItemsEnabled()
+
+            
+        }
+    }
+
+    /**
+     Toggles action buttons, based on the fact if the cells are selected
+    */
+    private func isRemoveItemsEnabled() {
+        if selectedPhotosIndexPaths.count > 0 {
+            newCollectionBtn.isHidden = true
+            removeSelectedBtn.isHidden = false
+        }
+        else {
+            newCollectionBtn.isHidden = false
+            removeSelectedBtn.isHidden = true
+        }
+    }
+    
+    /**
+     Shows no images label, if no images are available for the pin
+    */
+    private func toggleNoImagesLabel(numberOfImages: Int) {
+        if (numberOfImages == 0) {
+            noImagesLabel.isHidden = false
+        }
+        else {
+            noImagesLabel.isHidden = true
+        }
+    }
+    
 }
 
+/**
+ Extension for flow layout with auto-adjustable cell sizes
+*/
 extension PinDetailViewController: UICollectionViewDelegateFlowLayout {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
+        // Make mapView size a quarter of the screen
         mapViewHeightContraint.constant = view.frame.height / 4
         
         collectionView.collectionViewLayout.invalidateLayout()
     }
-    
-//    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-//        
-//        coordinator.animate(alongsideTransition: { (UIViewControllerTransitionCoordinatorContext) -> Void in
-//            
-//            let orient = UIApplication.shared.statusBarOrientation
-//            
-//            switch orient {
-//                case .portrait:
-//                    print("Portrait")
-//                case .landscapeLeft,.landscapeRight :
-//                    print("Landscape")
-//                default:
-//                    print("Anything But Portrait")
-//            }
-//            
-//        }, completion: { (UIViewControllerTransitionCoordinatorContext) -> Void in
-//            self.collectionView.reloadData()
-//            
-//        })
-//        super.viewWillTransition(to: size, with: coordinator)
-//        
-//    }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         

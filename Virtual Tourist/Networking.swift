@@ -2,6 +2,8 @@
 //  Networking.swift
 //  Virtual Tourist
 //
+//  Responsible for all Network operations
+//
 //  Created by Alexander on 7/06/17.
 //  Copyright © 2017 Dictality. All rights reserved.
 //
@@ -9,139 +11,144 @@
 import Foundation
 import UIKit
 
+/**
+ Used to store results of image request
+*/
+enum ImageResult {
+    case success(UIImage)
+    case failure(Error)
+}
+
+enum PhotoError: Error {
+    case imageCreationError
+}
+
+/**
+ Used to store results of DB query for Photo data
+*/
+enum PhotosResult {
+    case success([Photo])
+    case failure(Error)
+}
+
 class Networking {
     
     // MARK: Properties
+    static let imageStore = ImageStore()
     
-    // authentication state
-    var userID: String! = nil
-    var sessionID: String! = nil
-    var requestToken: String! = nil
-
-    // MARK: Network Functions GET/POST/etc.
+    private let session: URLSession = {
+        let config = URLSessionConfiguration.default
+        return URLSession(configuration: config)
+    }()
     
-    func taskForGetRequest(urlString : String,
-                           completionHandlerForGET: @escaping (_ result: AnyObject?, _ error: NSError?) -> Void) {
+    // MARK: Fetch Flickr Photos
+    
+    /**
+     Fetches data from Flickr web service for a given location
+     */
+    func fetchFlickrPhotosForLocation(
+        lat latitude: Double,
+        long longitude: Double,
+        extraRequrstParameters: [String: String] = [String:String](),
+        completion: @escaping (PhotosResult) -> Void) {
         
-        let request = NSMutableURLRequest(url: URL(string: urlString)!)
+        // Construcring Flickr Bounding Box parameter for the request
+        let flickrBoundingBox = bboxString(latitude: latitude, longitude: longitude)
         
-        let task = URLSession.shared.dataTask(with: request as URLRequest){ data, response, error in
+        var params = extraRequrstParameters
+        params[Constants.FlickrParameterKeys.BoundingBox] = flickrBoundingBox
+        
+        let url = FlickrAPI.photosSearchURL(params: params)
+        let request = URLRequest(url: url)
+        
+        print("Flickr Request URL: \(url)")
+        
+        let task = session.dataTask(with: request) {
+            (data, response, error) -> Void in
             
-            func sendError(_ error: String){
-                let userInfo = [NSLocalizedDescriptionKey : error]
-                completionHandlerForGET(nil, NSError(domain: "taskForGetMethod", code: 1, userInfo: userInfo))
+            let result = self.processPhotosRequest(data: data, error: error)
+            
+            if case .success = result {
+//                OperationQueue.main.addOperation {
+//                    CoreData.saveContext()
+//                }
             }
             
-            /* GUARD: Was there an error? */
-            guard (error == nil) else {
-                sendError("There was an error with your request: \(String(describing: error))")
-                return
+            // Process the completion handler on the main queue
+            OperationQueue.main.addOperation {
+                completion(result)
+            }
+        }
+        task.resume()
+    }
+    
+    /**
+     Helps to process the response from Flickr API
+     */
+    private func processPhotosRequest(data: Data?, error: Error?) -> PhotosResult {
+        guard let jsonData = data else {
+            return .failure(error!)
+        }
+        
+        return FlickrAPI.photos(fromJSON: jsonData, into: CoreData.persistentContainer.viewContext)
+    }
+    
+    func fetchImage(for photo: Photo, completion: @escaping (ImageResult) -> Void) {
+        
+        // Check cache for the image before attempting to download it
+        guard let photoKey = photo.photoID else {
+            preconditionFailure("Photo expected to have a photoID.")
+        }
+        if let image = Networking.imageStore.image(forKey: photoKey) {
+            OperationQueue.main.addOperation {
+                completion(.success(image))
+            }
+            return
+        }
+        
+        guard let photoURL = photo.urlSmall else {
+            preconditionFailure("Photo expected to have a remote URL.")
+        }
+        let request = URLRequest(url: photoURL as URL)
+        
+        let task = session.dataTask(with: request) {
+            (data, response, error) -> Void in
+            
+            let result = self.processImageRequest(data: data, error: error)
+            
+            // Save image to cache
+            if case let .success(image) = result {
+                Networking.imageStore.setImage(image, forKey: photoKey)
             }
             
-            /* GUARD: Did we get a successful 2XX response? */
-            guard let statusCode = (response as? HTTPURLResponse)?.statusCode,
-                statusCode >= 200 && statusCode <= 299 else {
-                    sendError("Status Code: \((response as? HTTPURLResponse)?.statusCode ?? 0)")
-                    return
+            // Process the completion handler on the main queue
+            OperationQueue.main.addOperation {
+                completion(result)
             }
-            
-            /* GUARD: Was there any data returned? */
-            guard let data = data else {
-                sendError("No data was returned by the request!")
-                return
-            }
-            
-            /* Parse the data and use the data (happens in completion handler) */
-            self.convertDataWithCompletionHandler(data, completionHandlerForConvertData: completionHandlerForGET)
         }
         task.resume()
         
     }
     
-    // MARK: Helper Functions
-    func requestImagesForLocation(latitude: Double,
-                                  longitude: Double,
-                                  withPageNumber: Int = 1,
-                                  completionHandler: @escaping (_ result: AnyObject?, _ error: NSError?) -> Void) {
-        
-        func sendError(_ error: String){
-            let userInfo = [NSLocalizedDescriptionKey : error]
-            completionHandler(nil, NSError(domain: "requestImagesForLocation", code: 1, userInfo: userInfo))
+    private func processImageRequest(data: Data?, error: Error?) -> ImageResult {
+        guard
+            let imageData = data,
+            let image = UIImage(data: imageData) else {
+                
+                // Couldn't create an image
+                if data == nil {
+                    return .failure(error!)
+                }
+                else {
+                    return .failure(PhotoError.imageCreationError)
+                }
         }
-        
-        let methodParameters = [
-            Constants.FlickrParameterKeys.Method: Constants.FlickrParameterValues.SearchMethod,
-            Constants.FlickrParameterKeys.APIKey: Constants.FlickrParameterValues.APIKey,
-            Constants.FlickrParameterKeys.BoundingBox: bboxString(latitude: latitude, longitude: longitude),
-            Constants.FlickrParameterKeys.SafeSearch: Constants.FlickrParameterValues.UseSafeSearch,
-            Constants.FlickrParameterKeys.Extras: Constants.FlickrParameterValues.MediumURL,
-            Constants.FlickrParameterKeys.Format: Constants.FlickrParameterValues.ResponseFormat,
-            Constants.FlickrParameterKeys.NoJSONCallback: Constants.FlickrParameterValues.DisableJSONCallback,
-            Constants.FlickrParameterKeys.NumberOfPhotosPerPage: Constants.FlickrParameterValues.NumberOfPhotosPerPage,
-            Constants.FlickrParameterKeys.Page: withPageNumber
-        ] as [String : AnyObject]
-
-        let urlString = flickrURLFromParameters(methodParameters)
-        
-        taskForGetRequest(urlString: String(describing: urlString), completionHandlerForGET: { (results, error) in
-            
-            guard let parsedResult = results else {
-                sendError("ParsedResults are nil")
-                return
-            }
-            
-            /* GUARD: Did Flickr return an error (stat != ok)? */
-            guard let stat = parsedResult[Constants.FlickrResponseKeys.Status] as? String, stat == Constants.FlickrResponseValues.OKStatus else {
-                sendError("Flickr API returned an error. See error code and message in \(parsedResult)")
-                return
-            }
-            
-            /* GUARD: Is the "photos" key in our result? */
-            guard let photosDictionary = parsedResult[Constants.FlickrResponseKeys.Photos] as? [String:AnyObject] else {
-                sendError("Cannot find key '\(Constants.FlickrResponseKeys.Photos)' in \(parsedResult)")
-                return
-            }
-            
-            /* GUARD: Is the "photo" key in photosDictionary? */
-            guard let photosArray = photosDictionary[Constants.FlickrResponseKeys.Photo] as? [[String: AnyObject]] else {
-                sendError("Cannot find key '\(Constants.FlickrResponseKeys.Photo)' in \(photosDictionary)")
-                return
-            }
-            
-            if photosArray.count == 0 {
-                sendError("No Photos Found. Search Again.")
-                return
-            } else {
-                completionHandler(photosArray as AnyObject, nil)
-            }
-        
-        })
-        
-        
+        return .success(image)
     }
     
     /**
-     
+     Helper function that creates Flickr bounding box paramter values from poin coordinates
     */
-    private func flickrURLFromParameters(_ parameters: [String:AnyObject]) -> URL {
-        
-        var components = URLComponents()
-        components.scheme = Constants.Flickr.APIScheme
-        components.host = Constants.Flickr.APIHost
-        components.path = Constants.Flickr.APIPath
-        components.queryItems = [URLQueryItem]()
-        
-        for (key, value) in parameters {
-            let queryItem = URLQueryItem(name: key, value: "\(value)")
-            components.queryItems!.append(queryItem)
-        }
-        
-        return components.url!
-    }
-    
-    /**
-     
-     */
     private func bboxString(latitude: Double, longitude: Double) -> String {
         // ensure bbox is bounded by minimum and maximums
         let minimumLon = max(longitude - Constants.Flickr.SearchBBoxHalfWidth, Constants.Flickr.SearchLonRange.0)
@@ -149,20 +156,6 @@ class Networking {
         let maximumLon = min(longitude + Constants.Flickr.SearchBBoxHalfWidth, Constants.Flickr.SearchLonRange.1)
         let maximumLat = min(latitude + Constants.Flickr.SearchBBoxHalfHeight, Constants.Flickr.SearchLatRange.1)
         return "\(minimumLon),\(minimumLat),\(maximumLon),\(maximumLat)"
-    }
-    
-    // given raw JSON, return a usable Foundation object
-    private func convertDataWithCompletionHandler(_ data: Data, completionHandlerForConvertData: (_ result: AnyObject?, _ error: NSError?) -> Void) -> Void{
-        
-        var parsedResult: AnyObject! = nil
-        do {
-            parsedResult = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as AnyObject
-        } catch {
-            let userInfo = [NSLocalizedDescriptionKey : "Could not parse the data as JSON: '\(data)'"]
-            completionHandlerForConvertData(nil, NSError(domain: "convertDataWithCompletionHandler", code: 1, userInfo: userInfo))
-        }
-        
-        completionHandlerForConvertData(parsedResult, nil)
     }
 
     // MARK: Shared Instance
