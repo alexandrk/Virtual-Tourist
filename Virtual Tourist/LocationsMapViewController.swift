@@ -126,15 +126,6 @@ class LocationsMapViewController: UIViewController, MKMapViewDelegate {
     private func removeSelectedPins(from view: MKAnnotationView) {
         if let annotation = view.annotation as? MyMKPointAnnotation {
             
-            let location = annotation.location!
-            
-            // Delete images from cache and disk, if any
-            if let photos = location.photos {
-                for photo in Array(photos) as! [Photo] {
-                    Networking.imageStore.deleteImage(forKey: photo.photoID!)
-                }
-            }
-            
             mapView.removeAnnotation(annotation)
             CoreData.moc.delete(annotation.location!)
         }

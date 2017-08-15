@@ -34,7 +34,7 @@ enum PhotosResult {
 class Networking {
     
     // MARK: Properties
-    static let imageStore = ImageStore()
+    let cache = NSCache<NSString, UIImage>()
     
     private let session: URLSession = {
         let config = URLSessionConfiguration.default
@@ -85,19 +85,37 @@ class Networking {
         return FlickrAPI.photos(fromJSON: jsonData, into: CoreData.persistentContainer.viewContext)
     }
     
+    /**
+     Fetches the specific image data from Flickr API
+    */
     func fetchImage(for photo: Photo, completion: @escaping (ImageResult) -> Void) {
         
         // Check cache for the image before attempting to download it
         guard let photoKey = photo.photoID else {
             preconditionFailure("Photo expected to have a photoID.")
         }
-        if let image = Networking.imageStore.image(forKey: photoKey) {
+        
+        if let imageFromCache = cache.object(forKey: photoKey as NSString) {
+            // Process the completion handler on the main queue
+            OperationQueue.main.addOperation {
+                completion(.success(imageFromCache))
+            }
+            return
+        }
+        
+        // If no image in cache, check entity for already downloaded imageData
+        if
+            let imageData = photo.imageData as Data?,
+            let image = UIImage(data: imageData)
+        {
+            cache.setObject(image, forKey: photoKey as NSString)
             OperationQueue.main.addOperation {
                 completion(.success(image))
             }
             return
         }
         
+        // If no image in cache or in entity property download it
         guard let photoURL = photo.urlSmall else {
             preconditionFailure("Photo expected to have a remote URL.")
         }
@@ -110,7 +128,11 @@ class Networking {
             
             // Save image to cache
             if case let .success(image) = result {
-                Networking.imageStore.setImage(image, forKey: photoKey)
+                CoreData.moc.performAndWait {
+                    photo.imageData = UIImagePNGRepresentation(image)! as NSData
+                    self.cache.setObject(image, forKey: photoKey as NSString)
+                }
+                CoreData.saveContext()
             }
             
             // Process the completion handler on the main queue

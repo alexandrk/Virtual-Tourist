@@ -11,16 +11,24 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
-         contextName = "PinDetailViewController.collectionView(UICollectionView, didSelectItemAt : IndexPath) -&gt; ():PinDetailViewController.swift">
+         contextName = "Networking.(fetchFlickrPhotosForLocation(lat : Double, long : Double, completion : (PhotosResult) -&gt; ()) -&gt; ()).(closure #1):Networking.swift">
          <PersistentStrings>
             <PersistentString
-               value = "selectedCells">
+               value = "result[0]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "ImageStore.deleteImage(forKey : String) -&gt; ():ImageStore.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "FileManager.default.fileExists(atPath: &quot;/Users/alexander/Library/Developer/CoreSimulator/Devices/E137C9AD-473E-426F-A8DA-24F7E164758F/data/Containers/Data/Application/B46521A9-B8ED-432D-A711-9445BAD04FCA/Documents/34957379533&quot;)">
             </PersistentString>
             <PersistentString
-               value = "selectedCell.isSelected">
+               value = "url.absoluteString">
             </PersistentString>
             <PersistentString
-               value = "selectedCells.count">
+               value = "cache.object(forKey: key)">
             </PersistentString>
          </PersistentStrings>
       </ContextState>
@@ -31,30 +39,16 @@
                value = "selectedPin?.coordinate.latitude as? Double">
             </PersistentString>
             <PersistentString
-               value = "selectedPin?.coordinate.latitude">
+               value = "(selectedPin?.coordinate.latitude as? Double)!">
             </PersistentString>
             <PersistentString
                value = "(selectedPin?.coordinate.latitude as? Double)! == selectedPin?.coordinate.latitude!">
             </PersistentString>
             <PersistentString
-               value = "(selectedPin?.coordinate.latitude as? Double)!">
+               value = "selectedPin?.coordinate.latitude">
             </PersistentString>
             <PersistentString
                value = "fetchRequest.predicate">
-            </PersistentString>
-         </PersistentStrings>
-      </ContextState>
-      <ContextState
-         contextName = "ImageStore.deleteImage(forKey : String) -&gt; ():ImageStore.swift">
-         <PersistentStrings>
-            <PersistentString
-               value = "cache.object(forKey: key)">
-            </PersistentString>
-            <PersistentString
-               value = "FileManager.default.fileExists(atPath: &quot;/Users/alexander/Library/Developer/CoreSimulator/Devices/E137C9AD-473E-426F-A8DA-24F7E164758F/data/Containers/Data/Application/B46521A9-B8ED-432D-A711-9445BAD04FCA/Documents/34957379533&quot;)">
-            </PersistentString>
-            <PersistentString
-               value = "url.absoluteString">
             </PersistentString>
          </PersistentStrings>
       </ContextState>
@@ -70,10 +64,16 @@
          contextName = "Networking.(fetchFlickrPhotosForLocation(latitude : Double, longitude : Double, completion : (PhotosResult) -&gt; ()) -&gt; ()).(closure #1):Networking.swift">
       </ContextState>
       <ContextState
-         contextName = "Networking.(fetchFlickrPhotosForLocation(lat : Double, long : Double, completion : (PhotosResult) -&gt; ()) -&gt; ()).(closure #1):Networking.swift">
+         contextName = "PinDetailViewController.collectionView(UICollectionView, didSelectItemAt : IndexPath) -&gt; ():PinDetailViewController.swift">
          <PersistentStrings>
             <PersistentString
-               value = "result[0]">
+               value = "selectedCells">
+            </PersistentString>
+            <PersistentString
+               value = "selectedCell.isSelected">
+            </PersistentString>
+            <PersistentString
+               value = "selectedCells.count">
             </PersistentString>
          </PersistentStrings>
       </ContextState>
@@ -117,15 +117,15 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
-         contextName = "PinDetailViewController.collectionView(UICollectionView, cellForItemAt : IndexPath) -&gt; UICollectionViewCell:PinDetailViewController.swift">
-      </ContextState>
-      <ContextState
          contextName = "AppDelegate.saveContext() -&gt; ():AppDelegate.swift">
          <PersistentStrings>
             <PersistentString
                value = "context.hasChanges">
             </PersistentString>
          </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "PinDetailViewController.collectionView(UICollectionView, cellForItemAt : IndexPath) -&gt; UICollectionViewCell:PinDetailViewController.swift">
       </ContextState>
       <ContextState
          contextName = "PinDetailViewController.actionButtonPress(Any) -&gt; ():PinDetailViewController.swift">
@@ -146,6 +146,28 @@
          <PersistentStrings>
             <PersistentString
                value = "FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "PinDetailViewController.(collectionView(UICollectionView, willDisplay : UICollectionViewCell, forItemAt : IndexPath) -&gt; ()).(closure #1):PinDetailViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "self.collectionView.cellForItem(at: photoIndexPath) as? FlickrImageCollectionViewCell">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "PinDetailViewController.collectionView(UICollectionView, willDisplay : UICollectionViewCell, forItemAt : IndexPath) -&gt; ():PinDetailViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "photos[0]">
+            </PersistentString>
+            <PersistentString
+               value = "self.photos.index(of: photo)">
+            </PersistentString>
+            <PersistentString
+               value = "indexPath.row">
             </PersistentString>
          </PersistentStrings>
       </ContextState>

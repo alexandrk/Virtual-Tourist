@@ -17,7 +17,7 @@ class PinDetailViewController: UIViewController,
 
     fileprivate let numberOfItemsPerRow: CGFloat = 3
     fileprivate let sectionInsets = UIEdgeInsets(top: 20, left: 10, bottom: 20, right: 10)
-    fileprivate var photos = [Photo]()
+    var photos = [Photo]()
     fileprivate var selectedPhotosIndexPaths = [IndexPath]()
     fileprivate var selectedPhotos = [Photo]()
     
@@ -89,7 +89,7 @@ class PinDetailViewController: UIViewController,
     // MARK: UICollectionViewDelegate
 
     /**
-     Delegaet method, that is called when the cell is about to be displayed in the collectionView
+     Delegate method, that is called when the cell is about to be displayed in the collectionView
     */
     func collectionView(_ collectionView: UICollectionView,
                         willDisplay cell: UICollectionViewCell,
@@ -110,9 +110,13 @@ class PinDetailViewController: UIViewController,
             }
             let photoIndexPath = IndexPath(item: photoIndex, section: 0)
             
+            print("photoIndexPath: \(photoIndexPath)")
+            
+            
+            
             // When request finishes, only update the cell if it is still visible
             // Note: cellForItem returns VISIBLE cell object at the specified index path
-            if let cell = self.collectionView.cellForItem(at: photoIndexPath) as? FlickrImageCollectionViewCell {
+            if let cell = collectionView.cellForItem(at: photoIndexPath) as? FlickrImageCollectionViewCell {
                 cell.update(with: image)
             }
         }
@@ -181,7 +185,7 @@ class PinDetailViewController: UIViewController,
             
             // 2. Remove files from cache and filesystem
             // Check if file is there, before deleting
-            Networking.imageStore.deleteImage(forKey: photo.photoID!)
+            //Networking.imageStore.deleteImage(forKey: photo.photoID!)
         }
         
         // 3. Remove Images from photos array
@@ -249,7 +253,7 @@ class PinDetailViewController: UIViewController,
             CoreData.moc.delete(photo)
             
             // 3. Remove files from cache and filesystem
-            Networking.imageStore.deleteImage(forKey: photo.photoID!)
+            //Networking.imageStore.deleteImage(forKey: photo.photoID!)
             
         }
         
