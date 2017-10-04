@@ -128,6 +128,7 @@ class LocationsMapViewController: UIViewController, MKMapViewDelegate {
             
             mapView.removeAnnotation(annotation)
             CoreData.moc.delete(annotation.location!)
+            CoreData.saveContext()
         }
     }
     

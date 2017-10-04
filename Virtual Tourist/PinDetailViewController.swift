@@ -180,7 +180,7 @@ class PinDetailViewController: UIViewController,
         let nextPageNumber = currentPageNumber + 1
         
         for photo in photos {
-            // 1. Remove Images from Core Data (NEEDS TO BE SAVED!)
+            // 1. Remove Images from Core Data
             CoreData.moc.delete(photo)
             
             // 2. Remove files from cache and filesystem
@@ -193,6 +193,9 @@ class PinDetailViewController: UIViewController,
         
         // 4. Remove Images from collection view
         collectionView.reloadData()
+        
+        // 5. Save to CoreData
+        CoreData.saveContext()
         
         // Request new items with new page number
         let extraParams = [Constants.FlickrParameterKeys.PageNumber: String(nextPageNumber)]
@@ -249,7 +252,7 @@ class PinDetailViewController: UIViewController,
             // 1. Remove Images from photos array
             let photo = photos.remove(at: indexPath.row)
             
-            // 2. Remove Images from Core Data (NEEDS TO BE SAVED!)
+            // 2. Remove Images from Core Data
             CoreData.moc.delete(photo)
             
             // 3. Remove files from cache and filesystem
@@ -262,6 +265,9 @@ class PinDetailViewController: UIViewController,
         
         // 5. Clear selected photos indexPath array
         selectedPhotosIndexPaths = []
+        
+        // 6. Save to CoreData
+        CoreData.saveContext()
         
         // Toggle buttons [New Collection | Remove Selected Pictures]
         isRemoveItemsEnabled()
