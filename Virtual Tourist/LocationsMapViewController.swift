@@ -101,7 +101,7 @@ class LocationsMapViewController: UIViewController, MKMapViewDelegate {
      Adds new pin to the map and database, on user action.
      Used as a handler for LongPress event.
     */
-    func addPin(sender: UILongPressGestureRecognizer) {
+    @objc func addPin(sender: UILongPressGestureRecognizer) {
         
         let coordinates: CLLocationCoordinate2D!
         
