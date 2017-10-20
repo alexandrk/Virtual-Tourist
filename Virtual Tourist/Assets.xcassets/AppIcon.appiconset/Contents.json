@@ -33,7 +33,7 @@
     {
       "size" : "60x60",
       "idiom" : "iphone",
-      "filename" : "VirtualTourist_120.png",
+      "filename" : "virtual-tourist-120pt.png",
       "scale" : "2x"
     },
     {
@@ -74,19 +74,26 @@
     {
       "size" : "76x76",
       "idiom" : "ipad",
-      "filename" : "VirtualTourist_76.png",
+      "filename" : "virtual-tourist-76pt.png",
       "scale" : "1x"
     },
     {
       "size" : "76x76",
       "idiom" : "ipad",
-      "filename" : "VirtualTourist_152.png",
+      "filename" : "virtual-tourist-152pt.png",
       "scale" : "2x"
     },
     {
-      "idiom" : "ipad",
       "size" : "83.5x83.5",
+      "idiom" : "ipad",
+      "filename" : "virtual-tourist-167pt.png",
       "scale" : "2x"
+    },
+    {
+      "size" : "1024x1024",
+      "idiom" : "ios-marketing",
+      "filename" : "virtual-tourist-1024pt.png",
+      "scale" : "1x"
     },
     {
       "idiom" : "car",
@@ -94,9 +101,8 @@
       "scale" : "2x"
     },
     {
-      "size" : "60x60",
       "idiom" : "car",
-      "filename" : "VirtualTourist_180.png",
+      "size" : "60x60",
       "scale" : "3x"
     },
     {
@@ -140,15 +146,13 @@
       "scale" : "2x"
     },
     {
-      "size" : "512x512",
       "idiom" : "mac",
-      "filename" : "VirtualTourist_512.png",
+      "size" : "512x512",
       "scale" : "1x"
     },
     {
-      "size" : "512x512",
       "idiom" : "mac",
-      "filename" : "VirtualTourist_1024.png",
+      "size" : "512x512",
       "scale" : "2x"
     }
   ],
