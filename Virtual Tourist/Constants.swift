@@ -12,7 +12,7 @@ struct Constants {
     
     struct AppStrings {
         static let AppName = "Virtual Tourist"
-        static let DetailViewControllerBackButtonText = "OK"
+        static let DetailViewControllerBackButtonText = "Back to the Map"
         static let NewCollectionButtonTitle = "New Collection"
         static let RemoveSelectedPicturesButtonTitle = "Remove Selected Pictures"
         static let EditBarButtonTitle = "Edit"
