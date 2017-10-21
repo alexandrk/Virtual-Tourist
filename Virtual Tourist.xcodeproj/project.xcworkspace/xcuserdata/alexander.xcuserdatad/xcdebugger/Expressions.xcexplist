@@ -3,56 +3,6 @@
    version = "1.0">
    <ContextStates>
       <ContextState
-         contextName = "PinDetailViewController.viewDidLayoutSubviews() -&gt; ():PinDetailViewController.swift">
-         <PersistentStrings>
-            <PersistentString
-               value = "view.frame.height">
-            </PersistentString>
-         </PersistentStrings>
-      </ContextState>
-      <ContextState
-         contextName = "Networking.(fetchFlickrPhotosForLocation(lat : Double, long : Double, completion : (PhotosResult) -&gt; ()) -&gt; ()).(closure #1):Networking.swift">
-         <PersistentStrings>
-            <PersistentString
-               value = "result[0]">
-            </PersistentString>
-         </PersistentStrings>
-      </ContextState>
-      <ContextState
-         contextName = "ImageStore.deleteImage(forKey : String) -&gt; ():ImageStore.swift">
-         <PersistentStrings>
-            <PersistentString
-               value = "FileManager.default.fileExists(atPath: &quot;/Users/alexander/Library/Developer/CoreSimulator/Devices/E137C9AD-473E-426F-A8DA-24F7E164758F/data/Containers/Data/Application/B46521A9-B8ED-432D-A711-9445BAD04FCA/Documents/34957379533&quot;)">
-            </PersistentString>
-            <PersistentString
-               value = "url.absoluteString">
-            </PersistentString>
-            <PersistentString
-               value = "cache.object(forKey: key)">
-            </PersistentString>
-         </PersistentStrings>
-      </ContextState>
-      <ContextState
-         contextName = "PinDetailViewController.setupFetchedResultsController() -&gt; ():PinDetailViewController.swift">
-         <PersistentStrings>
-            <PersistentString
-               value = "selectedPin?.coordinate.latitude as? Double">
-            </PersistentString>
-            <PersistentString
-               value = "(selectedPin?.coordinate.latitude as? Double)!">
-            </PersistentString>
-            <PersistentString
-               value = "(selectedPin?.coordinate.latitude as? Double)! == selectedPin?.coordinate.latitude!">
-            </PersistentString>
-            <PersistentString
-               value = "selectedPin?.coordinate.latitude">
-            </PersistentString>
-            <PersistentString
-               value = "fetchRequest.predicate">
-            </PersistentString>
-         </PersistentStrings>
-      </ContextState>
-      <ContextState
          contextName = "PinDetailViewController.viewDidLoad() -&gt; ():PinDetailViewController.swift">
          <PersistentStrings>
             <PersistentString
@@ -61,38 +11,10 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
-         contextName = "Networking.(fetchFlickrPhotosForLocation(latitude : Double, longitude : Double, completion : (PhotosResult) -&gt; ()) -&gt; ()).(closure #1):Networking.swift">
-      </ContextState>
-      <ContextState
-         contextName = "PinDetailViewController.collectionView(UICollectionView, didSelectItemAt : IndexPath) -&gt; ():PinDetailViewController.swift">
+         contextName = "Networking.(fetchFlickrPhotosForLocation(lat : Double, long : Double, completion : (PhotosResult) -&gt; ()) -&gt; ()).(closure #1):Networking.swift">
          <PersistentStrings>
             <PersistentString
-               value = "selectedCells">
-            </PersistentString>
-            <PersistentString
-               value = "selectedCell.isSelected">
-            </PersistentString>
-            <PersistentString
-               value = "selectedCells.count">
-            </PersistentString>
-         </PersistentStrings>
-      </ContextState>
-      <ContextState
-         contextName = "static FlickrAPI.photos(fromJSON : Data, into : NSManagedObjectContext) -&gt; PhotosResult:FlickrAPI.swift">
-         <PersistentStrings>
-            <PersistentString
-               value = "photo.photoID">
-            </PersistentString>
-            <PersistentString
-               value = "photo.pageNumber">
-            </PersistentString>
-         </PersistentStrings>
-      </ContextState>
-      <ContextState
-         contextName = "LocationsMapViewController.mapView(MKMapView, viewFor : MKAnnotation) -&gt; MKAnnotationView?:LocationsMapViewController.swift">
-         <PersistentStrings>
-            <PersistentString
-               value = "annotationView.image">
+               value = "result[0]">
             </PersistentString>
          </PersistentStrings>
       </ContextState>
@@ -125,19 +47,21 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
-         contextName = "PinDetailViewController.collectionView(UICollectionView, cellForItemAt : IndexPath) -&gt; UICollectionViewCell:PinDetailViewController.swift">
-      </ContextState>
-      <ContextState
-         contextName = "PinDetailViewController.actionButtonPress(Any) -&gt; ():PinDetailViewController.swift">
+         contextName = "PinDetailViewController.viewDidLayoutSubviews() -&gt; ():PinDetailViewController.swift">
          <PersistentStrings>
             <PersistentString
-               value = "photo.photoID!">
+               value = "view.frame.height">
             </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "Networking.(fetchFlickrPhotosForLocation(latitude : Double, longitude : Double, completion : (PhotosResult) -&gt; ()) -&gt; ()).(closure #1):Networking.swift">
+      </ContextState>
+      <ContextState
+         contextName = "PinDetailViewController.getImagesForSelectedPin() -&gt; ():PinDetailViewController.swift">
+         <PersistentStrings>
             <PersistentString
-               value = "indexPath.row">
-            </PersistentString>
-            <PersistentString
-               value = "photos">
+               value = "location.latitude">
             </PersistentString>
          </PersistentStrings>
       </ContextState>
@@ -150,6 +74,53 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
+         contextName = "static FlickrAPI.photos(fromJSON : Data, into : NSManagedObjectContext) -&gt; PhotosResult:FlickrAPI.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "photo.photoID">
+            </PersistentString>
+            <PersistentString
+               value = "photo.pageNumber">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "PinDetailViewController.actionButtonPress(Any) -&gt; ():PinDetailViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "photos">
+            </PersistentString>
+            <PersistentString
+               value = "indexPath.row">
+            </PersistentString>
+            <PersistentString
+               value = "photo.photoID!">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "LocationsMapViewController.editPinsButtonAction(_:):LocationsMapViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "locations">
+            </PersistentString>
+            <PersistentString
+               value = "editButton.isEnabled">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "LocationsMapViewController.locations.didset:LocationsMapViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "editButton.isEnabled">
+            </PersistentString>
+            <PersistentString
+               value = "locations">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
          contextName = "PinDetailViewController.(collectionView(UICollectionView, willDisplay : UICollectionViewCell, forItemAt : IndexPath) -&gt; ()).(closure #1):PinDetailViewController.swift">
          <PersistentStrings>
             <PersistentString
@@ -158,24 +129,22 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
-         contextName = "PinDetailViewController.collectionView(UICollectionView, willDisplay : UICollectionViewCell, forItemAt : IndexPath) -&gt; ():PinDetailViewController.swift">
+         contextName = "PinDetailViewController.setupFetchedResultsController() -&gt; ():PinDetailViewController.swift">
          <PersistentStrings>
             <PersistentString
-               value = "photos[0]">
+               value = "selectedPin?.coordinate.latitude as? Double">
             </PersistentString>
             <PersistentString
-               value = "self.photos.index(of: photo)">
+               value = "fetchRequest.predicate">
             </PersistentString>
             <PersistentString
-               value = "indexPath.row">
+               value = "(selectedPin?.coordinate.latitude as? Double)! == selectedPin?.coordinate.latitude!">
             </PersistentString>
-         </PersistentStrings>
-      </ContextState>
-      <ContextState
-         contextName = "PinDetailViewController.getImagesForSelectedPin() -&gt; ():PinDetailViewController.swift">
-         <PersistentStrings>
             <PersistentString
-               value = "location.latitude">
+               value = "(selectedPin?.coordinate.latitude as? Double)!">
+            </PersistentString>
+            <PersistentString
+               value = "selectedPin?.coordinate.latitude">
             </PersistentString>
          </PersistentStrings>
       </ContextState>
@@ -187,6 +156,59 @@
             </PersistentString>
             <PersistentString
                value = "MapController.mapViewReference">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "ImageStore.deleteImage(forKey : String) -&gt; ():ImageStore.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "FileManager.default.fileExists(atPath: &quot;/Users/alexander/Library/Developer/CoreSimulator/Devices/E137C9AD-473E-426F-A8DA-24F7E164758F/data/Containers/Data/Application/B46521A9-B8ED-432D-A711-9445BAD04FCA/Documents/34957379533&quot;)">
+            </PersistentString>
+            <PersistentString
+               value = "url.absoluteString">
+            </PersistentString>
+            <PersistentString
+               value = "cache.object(forKey: key)">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "LocationsMapViewController.mapView(MKMapView, viewFor : MKAnnotation) -&gt; MKAnnotationView?:LocationsMapViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "annotationView.image">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "PinDetailViewController.collectionView(UICollectionView, cellForItemAt : IndexPath) -&gt; UICollectionViewCell:PinDetailViewController.swift">
+      </ContextState>
+      <ContextState
+         contextName = "PinDetailViewController.collectionView(UICollectionView, didSelectItemAt : IndexPath) -&gt; ():PinDetailViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "selectedCells">
+            </PersistentString>
+            <PersistentString
+               value = "selectedCell.isSelected">
+            </PersistentString>
+            <PersistentString
+               value = "selectedCells.count">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "PinDetailViewController.collectionView(UICollectionView, willDisplay : UICollectionViewCell, forItemAt : IndexPath) -&gt; ():PinDetailViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "indexPath.row">
+            </PersistentString>
+            <PersistentString
+               value = "self.photos.index(of: photo)">
+            </PersistentString>
+            <PersistentString
+               value = "photos[0]">
             </PersistentString>
          </PersistentStrings>
       </ContextState>

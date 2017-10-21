@@ -75,10 +75,10 @@ class CoreData: NSObject {
     
     /**
      Gets all existing Locations from the database
-     - Returns: an optional array of `Location` objects
+     - Returns: an array of `Location` objects
     */
-    static func getExistingLocations() -> [Location]? {
-        var locations: [Location]?
+    static func getExistingLocations() -> [Location] {
+        var locations = [Location]()
         let fetchRequest: NSFetchRequest<Location> = Location.fetchRequest()
         
         do {

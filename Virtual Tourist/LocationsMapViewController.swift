@@ -13,11 +13,18 @@ class LocationsMapViewController: UIViewController, MKMapViewDelegate {
     
     @IBOutlet weak var mapView: MKMapView!
     fileprivate var longPressGesture: UILongPressGestureRecognizer!
-    fileprivate var locations: [Location]?
+    fileprivate var locations = [Location]() {
+      didSet {
+          if editButton.title == Constants.AppStrings.EditBarButtonTitle {
+              editButton.isEnabled = !locations.isEmpty
+        }
+      }
+    }
     @IBOutlet weak var editPinsButton: UIBarButtonItem!
     @IBOutlet weak var pinDeleteInfoLabel: UILabel!
     @IBOutlet weak var mapViewBottomConstraint: NSLayoutConstraint!
-    
+    @IBOutlet weak var editButton: UIBarButtonItem!
+  
     // Required for resetting mapViewReference after DetailViewController Pop
     override func viewWillAppear(_ animated: Bool) {
         MapController.mapViewReference = mapView
@@ -40,7 +47,7 @@ class LocationsMapViewController: UIViewController, MKMapViewDelegate {
         longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(addPin))
         longPressGesture.minimumPressDuration = 0.5
         gestureRecognizer(enable: true)
-        
+    
     }
 
     /**
@@ -48,14 +55,12 @@ class LocationsMapViewController: UIViewController, MKMapViewDelegate {
     */
     func plotExistingLocations() {
         locations = CoreData.getExistingLocations()
-        
-        if let locations = locations {
-            for location in locations {
-                
-                // Creates annotation and add it to map
-                _ = MapController.createAnnotation(from: location)
-                
-            }
+      
+        for location in locations {
+          
+            // Creates annotation and add it to map
+            _ = MapController.createAnnotation(from: location)
+          
         }
     }
     
@@ -115,7 +120,7 @@ class LocationsMapViewController: UIViewController, MKMapViewDelegate {
             let location = CoreData.saveLocationToDB(coordinates: coordinates)
             
             // Add new location to locations array
-            locations?.append(location)
+            locations.append(location)
             
             // Create annotation and add it to map
             _ = MapController.createAnnotation(from: location)
@@ -125,7 +130,13 @@ class LocationsMapViewController: UIViewController, MKMapViewDelegate {
     
     private func removeSelectedPins(from view: MKAnnotationView) {
         if let annotation = view.annotation as? MyMKPointAnnotation {
-            
+          
+            // Remove item from locations array
+            let itemIndex = locations.index(of: annotation.location!)
+            if let itemIndex = itemIndex {
+                locations.remove(at: itemIndex)
+            }
+          
             mapView.removeAnnotation(annotation)
             CoreData.moc.delete(annotation.location!)
             CoreData.saveContext()
@@ -161,6 +172,7 @@ class LocationsMapViewController: UIViewController, MKMapViewDelegate {
             barButton?.title = Constants.AppStrings.EditBarButtonTitle
             mapViewBottomConstraint.constant = 0
             gestureRecognizer(enable: true)
+            editButton.isEnabled = !locations.isEmpty
             CoreData.saveContext()
             
             
